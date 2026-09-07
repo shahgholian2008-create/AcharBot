@@ -1,14 +1,7 @@
 services:
   - type: web
     name: acharfrancebot
-    runtime: python
+    runtime: image
+    repo: https://github.com/shahgholian2008-create/AcharBot
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
-    envVars:
-      - key: TELEGRAM_TOKEN
-        sync: false
-      - key: REMOVEBG_API_KEY
-        sync: false
-      - key: GEMINI_API_KEY
-        sync: false
+    dockerfilePath: ./Dockerfile
