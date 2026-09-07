@@ -2,4 +2,4 @@ aiogram==2.25.1
 google-genai
 pytesseract
 Pillow
-aiohttp
+aiohttp==3.9.5
