@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Configuration files (contain secrets)
+config.json
+.env
+
+# Virtual environments
+venv/
+env/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Build and distribution folders
+build/
+dist/
+*.exe
+*.zip
