@@ -4,7 +4,7 @@ from aiogram.types import FSInputFile
 from aiogram.fsm.context import FSMContext
 from states import PhotoStates
 from PIL import Image, ImageFilter, ImageEnhance
-import random
+from utils.ai_utils import restore_image  # ✅ اضافه شده
 
 async def edit_photo_with_text(message: types.Message, state: FSMContext):
     await state.set_state(PhotoStates.waiting_for_edit_text)
@@ -27,7 +27,8 @@ async def handle_edit_photo(message: types.Message, state: FSMContext, bot):
         "• وضوح بالا\n"
         "• محو\n"
         "• قدیمی\n"
-        "• رنگارنگ"
+        "• رنگارنگ\n"
+        "• ترمیم"
     )
 
 async def handle_edit_prompt(message: types.Message, state: FSMContext):
@@ -95,9 +96,13 @@ async def handle_edit_prompt(message: types.Message, state: FSMContext):
             
         # ترمیم
         elif "ترمیم" in prompt or "restore" in prompt or "بازسازی" in prompt:
-            image = await restore_image(file_path)
-            if image:
-                output_path = image
+            result_path = await restore_image(file_path)  # ✅ await اضافه شد
+            if result_path and os.path.exists(result_path):
+                await message.answer("✅ عکس ترمیم‌شده:")
+                await message.answer_photo(photo=FSInputFile(result_path))
+                os.remove(result_path)
+                await state.clear()
+                return
             else:
                 await message.answer("❌ خطا در ترمیم عکس. لطفاً دوباره تلاش کنید.")
                 await state.clear()
@@ -122,8 +127,7 @@ async def handle_edit_prompt(message: types.Message, state: FSMContext):
         os.remove(file_path)
     
     await state.clear()
-    
-    
+
 async def restore_photo(message: types.Message, state: FSMContext):
     """دکمه ترمیم عکس"""
     await state.set_state(PhotoStates.waiting_for_enhance)
@@ -139,8 +143,7 @@ async def handle_restore(message: types.Message, state: FSMContext, bot):
     await bot.download_file(file.file_path, file_path)
 
     try:
-        from utils.ai_utils import restore_image
-        result_path = await restore_image(file_path)
+        result_path = await restore_image(file_path)  # ✅ await اضافه شد
         
         if result_path and os.path.exists(result_path):
             await message.answer("✅ عکس ترمیم‌شده:")
