@@ -13,11 +13,24 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from handlers import start, enhance, remove_bg, edit, ai_handler as ai
 from states import PhotoStates
 
-# ========== بارگذاری تنظیمات ==========
-with open("config.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
+# ========== بارگذاری توکن ==========
+# اولویت با متغیر محیطی است (برای سرورهایی مثل Render)
+TOKEN = os.environ.get("TELEGRAM_TOKEN")
 
-TOKEN = config["telegram_token"]
+# اگر متغیر محیطی وجود نداشت، از config.json بخوان (برای محیط محلی)
+if not TOKEN:
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+            TOKEN = config.get("telegram_token")
+    except FileNotFoundError:
+        print("❌ فایل config.json پیدا نشد!")
+    except KeyError:
+        print("❌ کلید telegram_token در config.json وجود ندارد!")
+
+# اگر هیچ توکنی پیدا نشد، برنامه را متوقف کن
+if not TOKEN:
+    raise ValueError("❌ توکن ربات پیدا نشد! متغیر TELEGRAM_TOKEN را تنظیم کنید یا فایل config.json را بررسی کنید.")
 
 # ========== تنظیمات اولیه ==========
 logging.basicConfig(level=logging.INFO)
