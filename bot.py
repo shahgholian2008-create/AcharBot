@@ -29,7 +29,7 @@ if not TOKEN:
 
 # ========== تنظیم پروکسی ==========
 # از یک پروکسی عمومی و رایگان استفاده می‌کنیم
-PROXY_URL = "http://198.49.68.80:80"  # پروکسی عمومی
+PROXY_URL = "http://107.181.252.58:1082"  # پروکسی عمومی
 
 session = AiohttpSession(proxy=PROXY_URL)
 bot = Bot(token=TOKEN, session=session)
