@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.dispatcher.filters import Command
+from aiogram.filters import Command  # ✅ اصلاح شده برای نسخه 3
 from aiogram.fsm.context import FSMContext
 
 async def start_command(message: types.Message):
