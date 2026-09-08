@@ -6,10 +6,20 @@ from states import PhotoStates
 import aiohttp
 import json
 
-with open("config.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
+# ========== خواندن کلید از متغیر محیطی ==========
+REMOVEBG_API_KEY = os.environ.get("REMOVEBG_API_KEY")
 
-REMOVEBG_API_KEY = config["removebg_api_key"]
+# اگر متغیر محیطی نبود، از config.json بخوان (برای محیط محلی)
+if not REMOVEBG_API_KEY:
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+            REMOVEBG_API_KEY = config.get("removebg_api_key")
+    except:
+        pass
+
+if not REMOVEBG_API_KEY:
+    raise ValueError("❌ REMOVEBG_API_KEY not found in environment variables or config.json")
 
 async def remove_bg_photo(message: types.Message, state: FSMContext):
     await state.set_state(PhotoStates.waiting_for_removebg)
