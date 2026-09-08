@@ -6,6 +6,7 @@ import sys
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.client.session.aiohttp import AiohttpSession  # ✅ اضافه شده
 
 # اضافه کردن مسیر فعلی به sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -14,28 +15,28 @@ from handlers import start, enhance, remove_bg, edit, ai_handler as ai
 from states import PhotoStates
 
 # ========== بارگذاری توکن ==========
-# اولویت با متغیر محیطی است (برای سرورهایی مثل Render)
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
-
-# اگر متغیر محیطی وجود نداشت، از config.json بخوان (برای محیط محلی)
 if not TOKEN:
     try:
         with open("config.json", "r", encoding="utf-8") as f:
             config = json.load(f)
             TOKEN = config.get("telegram_token")
-    except FileNotFoundError:
-        print("❌ فایل config.json پیدا نشد!")
-    except KeyError:
-        print("❌ کلید telegram_token در config.json وجود ندارد!")
+    except:
+        pass
 
-# اگر هیچ توکنی پیدا نشد، برنامه را متوقف کن
 if not TOKEN:
-    raise ValueError("❌ توکن ربات پیدا نشد! متغیر TELEGRAM_TOKEN را تنظیم کنید یا فایل config.json را بررسی کنید.")
+    raise ValueError("❌ توکن ربات پیدا نشد!")
+
+# ========== تنظیم پروکسی ==========
+# از یک پروکسی عمومی و رایگان استفاده می‌کنیم
+PROXY_URL = "http://198.49.68.80:80"  # پروکسی عمومی
+
+session = AiohttpSession(proxy=PROXY_URL)
+bot = Bot(token=TOKEN, session=session)
 
 # ========== تنظیمات اولیه ==========
 logging.basicConfig(level=logging.INFO)
 storage = MemoryStorage()
-bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=storage)
 
 # ==========================================
@@ -71,7 +72,7 @@ dp.message.register(edit.handle_edit_prompt, PhotoStates.waiting_for_edit_prompt
 dp.message.register(edit.restore_photo, lambda m: m.text == "🛠️ ترمیم عکس")
 dp.message.register(edit.handle_restore, PhotoStates.waiting_for_enhance)
 
-# 7. پیام‌های نامشخص (آخرین هندلر)
+# 7. پیام‌های نامشخص
 @dp.message()
 async def unknown_message(message: types.Message, state):
     await state.clear()
