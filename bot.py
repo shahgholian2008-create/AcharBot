@@ -4,7 +4,7 @@ import json
 import os
 import sys
 from aiogram import Bot, Dispatcher, types
-from aiogram.dispatcher.filters import Command
+from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 
 # اضافه کردن مسیر فعلی به sys.path
@@ -38,25 +38,25 @@ dp.message.register(ai.ai_menu, lambda m: m.text == "🤖 سوال از هوش �
 dp.message.register(ai.ai_text, Command("ask"))
 dp.message.register(ai.handle_ai_text, PhotoStates.waiting_for_gemini_question)
 dp.message.register(ai.ai_image, Command("askimage"))
-dp.message.register(ai.handle_ai_image, PhotoStates.waiting_for_gemini_image, lambda m: m.photo)
+dp.message.register(ai.handle_ai_image, PhotoStates.waiting_for_gemini_image)
 dp.message.register(ai.handle_ai_image_question, PhotoStates.waiting_for_edit_prompt)
 
 # 3. افزایش کیفیت
 dp.message.register(enhance.enhance_photo, lambda m: m.text == "📸 افزایش کیفیت")
-dp.message.register(enhance.handle_enhance, PhotoStates.waiting_for_enhance, lambda m: m.photo)
+dp.message.register(enhance.handle_enhance, PhotoStates.waiting_for_enhance)
 
 # 4. حذف پس‌زمینه
 dp.message.register(remove_bg.remove_bg_photo, lambda m: m.text == "🖼️ حذف پس‌زمینه")
-dp.message.register(remove_bg.handle_removebg, PhotoStates.waiting_for_removebg, lambda m: m.photo)
+dp.message.register(remove_bg.handle_removebg, PhotoStates.waiting_for_removebg)
 
 # 5. ویرایش با متن
 dp.message.register(edit.edit_photo_with_text, lambda m: m.text == "🎨 ویرایش با متن")
-dp.message.register(edit.handle_edit_photo, PhotoStates.waiting_for_edit_text, lambda m: m.photo)
+dp.message.register(edit.handle_edit_photo, PhotoStates.waiting_for_edit_text)
 dp.message.register(edit.handle_edit_prompt, PhotoStates.waiting_for_edit_prompt)
 
 # 6. ترمیم عکس
 dp.message.register(edit.restore_photo, lambda m: m.text == "🛠️ ترمیم عکس")
-dp.message.register(edit.handle_restore, PhotoStates.waiting_for_enhance, lambda m: m.photo)
+dp.message.register(edit.handle_restore, PhotoStates.waiting_for_enhance)
 
 # 7. پیام‌های نامشخص (آخرین هندلر)
 @dp.message()
