@@ -4,7 +4,7 @@ import json
 import os
 import sys
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
+from aiogram.dispatcher.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 
 # اضافه کردن مسیر فعلی به sys.path
