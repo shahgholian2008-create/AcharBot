@@ -5,10 +5,20 @@ from utils.ai_utils import ask_gemini_text, analyze_image, extract_text_tesserac
 import os
 import json
 
-with open("config.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
+# ========== خواندن کلید از متغیر محیطی ==========
+AI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-AI_API_KEY = config.get("gemini_api_key")
+# اگر متغیر محیطی نبود، از config.json بخوان (برای محیط محلی)
+if not AI_API_KEY:
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+            AI_API_KEY = config.get("gemini_api_key")
+    except:
+        pass
+
+if not AI_API_KEY:
+    raise ValueError("❌ GEMINI_API_KEY not found in environment variables or config.json")
 
 async def ai_menu(message: types.Message, state: FSMContext):
     await state.clear()
@@ -59,7 +69,6 @@ async def handle_ai_image_question(message: types.Message, state: FSMContext):
     user_question = message.text.lower().strip()
     await message.answer("⏳ در حال تحلیل عکس...")
     
-    # استفاده از تابع ترکیبی برای تحلیل عکس
     answer = await analyze_image(file_path, user_question, AI_API_KEY)
     
     await message.answer(f"🤖 پاسخ هوش مصنوعی:\n\n{answer}")
