@@ -27,12 +27,7 @@ if not TOKEN:
 if not TOKEN:
     raise ValueError("❌ توکن ربات پیدا نشد!")
 
-# ========== تنظیم پروکسی ==========
-# از یک پروکسی عمومی و رایگان استفاده می‌کنیم
-PROXY_URL = "http://107.181.252.58:1082"  # پروکسی عمومی
-
-session = AiohttpSession(proxy=PROXY_URL)
-bot = Bot(token=TOKEN, session=session)
+bot = Bot(token=TOKEN)
 
 # ========== تنظیمات اولیه ==========
 logging.basicConfig(level=logging.INFO)
