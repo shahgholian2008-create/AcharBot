@@ -29,7 +29,7 @@ if not TOKEN:
 
 # ========== تنظیم پروکسی ==========
 # از یک پروکسی عمومی و رایگان استفاده می‌کنیم
-PROXY_URL = "http://167.160.190.215:8080"  # پروکسی عمومی
+PROXY_URL = "socks5://IP:PORT"  # پروکسی عمومی
 
 session = AiohttpSession(proxy=PROXY_URL)
 bot = Bot(token=TOKEN, session=session)
