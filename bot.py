@@ -6,9 +6,6 @@ import sys
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Update
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiohttp import web
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -63,30 +60,13 @@ async def unknown_message(message: types.Message, state):
     await state.clear()
     await message.answer("❌ لطفاً از دکمه‌های منو استفاده کنید یا /start را بزنید.")
 
-# ========== تنظیم Webhook ==========
-WEBHOOK_PATH = "/webhook"
-WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL")
+# ==========================================
+# ========== اجرای ربات با Polling ==========
+# ==========================================
 
-if not WEBHOOK_URL:
-    raise ValueError("❌ RENDER_EXTERNAL_URL not set!")
-
-async def on_startup():
-    await bot.delete_webhook()
-    await bot.set_webhook(f"{WEBHOOK_URL}{WEBHOOK_PATH}")
-
-async def on_shutdown():
-    await bot.delete_webhook()
-    await bot.session.close()
-
-def main():
-    app = web.Application()
-    
-    # ثبت Webhook با روش صحیح
-    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
-    setup_application(app, dp, bot=bot)
-    
-    port = int(os.environ.get("PORT", 10000))
-    web.run_app(app, host="0.0.0.0", port=port)
+async def main():
+    print("🤖 ربات هوش مصنوعی Achar France روشن شد...")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
