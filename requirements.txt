@@ -3,4 +3,4 @@ google-genai
 pytesseract
 Pillow
 aiohttp
-aiohttp-socks 
+aiohttp-socks
