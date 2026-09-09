@@ -64,11 +64,11 @@ async def unknown_message(message: types.Message, state):
     await message.answer("❌ لطفاً از دکمه‌های منو استفاده کنید یا /start را بزنید.")
 
 # ========== تنظیم Webhook ==========
-WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL")
-if not WEBHOOK_URL:
-    WEBHOOK_URL = "https://your-app-name.onrender.com"  # آدرس واقعی ربات در Render
-
 WEBHOOK_PATH = "/webhook"
+WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL")
+
+if not WEBHOOK_URL:
+    raise ValueError("❌ RENDER_EXTERNAL_URL not set!")
 
 async def on_startup():
     await bot.delete_webhook()
@@ -80,7 +80,9 @@ async def on_shutdown():
 
 def main():
     app = web.Application()
-    app.router.post(WEBHOOK_PATH, SimpleRequestHandler(dispatcher=dp, bot=bot).handle)
+    
+    # ثبت Webhook با روش صحیح
+    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
     setup_application(app, dp, bot=bot)
     
     port = int(os.environ.get("PORT", 10000))
