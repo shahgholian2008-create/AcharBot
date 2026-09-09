@@ -6,9 +6,10 @@ import sys
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.client.session.aiohttp import AiohttpSession  # ✅ اضافه شده
+from aiogram.types import Update
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiohttp import web
 
-# اضافه کردن مسیر فعلی به sys.path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from handlers import start, enhance, remove_bg, edit, ai_handler as ai
@@ -27,22 +28,16 @@ if not TOKEN:
 if not TOKEN:
     raise ValueError("❌ توکن ربات پیدا نشد!")
 
-bot = Bot(token=TOKEN)
-
 # ========== تنظیمات اولیه ==========
 logging.basicConfig(level=logging.INFO)
 storage = MemoryStorage()
+bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=storage)
 
-# ==========================================
 # ========== ثبت هندلرها ==========
-# ==========================================
-
-# 1. منو و راهنما
 dp.message.register(start.start_command, Command("start"))
 dp.message.register(start.help_command, lambda m: m.text == "ℹ️ راهنما")
 
-# 2. هوش مصنوعی (AI)
 dp.message.register(ai.ai_menu, lambda m: m.text == "🤖 سوال از هوش مصنوعی")
 dp.message.register(ai.ai_text, Command("ask"))
 dp.message.register(ai.handle_ai_text, PhotoStates.waiting_for_gemini_question)
@@ -50,36 +45,46 @@ dp.message.register(ai.ai_image, Command("askimage"))
 dp.message.register(ai.handle_ai_image, PhotoStates.waiting_for_gemini_image)
 dp.message.register(ai.handle_ai_image_question, PhotoStates.waiting_for_edit_prompt)
 
-# 3. افزایش کیفیت
 dp.message.register(enhance.enhance_photo, lambda m: m.text == "📸 افزایش کیفیت")
 dp.message.register(enhance.handle_enhance, PhotoStates.waiting_for_enhance)
 
-# 4. حذف پس‌زمینه
 dp.message.register(remove_bg.remove_bg_photo, lambda m: m.text == "🖼️ حذف پس‌زمینه")
 dp.message.register(remove_bg.handle_removebg, PhotoStates.waiting_for_removebg)
 
-# 5. ویرایش با متن
 dp.message.register(edit.edit_photo_with_text, lambda m: m.text == "🎨 ویرایش با متن")
 dp.message.register(edit.handle_edit_photo, PhotoStates.waiting_for_edit_text)
 dp.message.register(edit.handle_edit_prompt, PhotoStates.waiting_for_edit_prompt)
 
-# 6. ترمیم عکس
 dp.message.register(edit.restore_photo, lambda m: m.text == "🛠️ ترمیم عکس")
 dp.message.register(edit.handle_restore, PhotoStates.waiting_for_enhance)
 
-# 7. پیام‌های نامشخص
 @dp.message()
 async def unknown_message(message: types.Message, state):
     await state.clear()
     await message.answer("❌ لطفاً از دکمه‌های منو استفاده کنید یا /start را بزنید.")
 
-# ==========================================
-# ========== اجرای ربات ==========
-# ==========================================
+# ========== تنظیم Webhook ==========
+WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL")
+if not WEBHOOK_URL:
+    WEBHOOK_URL = "https://your-app-name.onrender.com"  # آدرس واقعی ربات در Render
 
-async def main():
-    print("🤖 ربات هوش مصنوعی Achar France روشن شد...")
-    await dp.start_polling(bot)
+WEBHOOK_PATH = "/webhook"
+
+async def on_startup():
+    await bot.delete_webhook()
+    await bot.set_webhook(f"{WEBHOOK_URL}{WEBHOOK_PATH}")
+
+async def on_shutdown():
+    await bot.delete_webhook()
+    await bot.session.close()
+
+def main():
+    app = web.Application()
+    app.router.post(WEBHOOK_PATH, SimpleRequestHandler(dispatcher=dp, bot=bot).handle)
+    setup_application(app, dp, bot=bot)
+    
+    port = int(os.environ.get("PORT", 10000))
+    web.run_app(app, host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
