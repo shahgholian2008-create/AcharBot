@@ -6,6 +6,7 @@ import sys
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiohttp import web  # برای اضافه کردن یک مسیر تست ساده
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -69,4 +70,7 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("ربات متوقف شد.")
