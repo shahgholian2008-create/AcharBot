@@ -4,22 +4,12 @@ from aiogram.types import FSInputFile
 from aiogram.fsm.context import FSMContext
 from states import PhotoStates
 import aiohttp
-import json
 
 # ========== خواندن کلید از متغیر محیطی ==========
 REMOVEBG_API_KEY = os.environ.get("REMOVEBG_API_KEY")
 
-# اگر متغیر محیطی نبود، از config.json بخوان (برای محیط محلی)
 if not REMOVEBG_API_KEY:
-    try:
-        with open("config.json", "r", encoding="utf-8") as f:
-            config = json.load(f)
-            REMOVEBG_API_KEY = config.get("removebg_api_key")
-    except:
-        pass
-
-if not REMOVEBG_API_KEY:
-    raise ValueError("❌ REMOVEBG_API_KEY not found in environment variables or config.json")
+    raise ValueError("❌ REMOVEBG_API_KEY not found in environment variables")
 
 async def remove_bg_photo(message: types.Message, state: FSMContext):
     await state.set_state(PhotoStates.waiting_for_removebg)
@@ -34,6 +24,9 @@ async def handle_removebg(message: types.Message, state: FSMContext, bot):
     await bot.download_file(file.file_path, file_path)
 
     try:
+        # ✅ استفاده از پروکسی PythonAnywhere
+        proxy_url = 'http://proxy.server:3128'
+        
         async with aiohttp.ClientSession() as session:
             with open(file_path, 'rb') as f:
                 files = {'image_file': f}
@@ -42,6 +35,7 @@ async def handle_removebg(message: types.Message, state: FSMContext, bot):
                     'https://api.remove.bg/v1.0/removebg',
                     headers=headers,
                     data=files,
+                    proxy=proxy_url,  # ✅ اضافه کردن پروکسی
                     timeout=30
                 ) as response:
                     if response.status == 200:

@@ -7,3 +7,4 @@ class PhotoStates(StatesGroup):
     waiting_for_edit_prompt = State()
     waiting_for_gemini_question = State()
     waiting_for_gemini_image = State()
+    waiting_for_gemini_image_question = State()

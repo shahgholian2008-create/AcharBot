@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.filters import Command  # ✅ اصلاح شده برای نسخه 3
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
 async def start_command(message: types.Message):
@@ -8,7 +8,6 @@ async def start_command(message: types.Message):
             [types.KeyboardButton(text="📸 افزایش کیفیت")],
             [types.KeyboardButton(text="🖼️ حذف پس‌زمینه")],
             [types.KeyboardButton(text="🎨 ویرایش با متن")],
-            [types.KeyboardButton(text="🛠️ ترمیم عکس")],
             [types.KeyboardButton(text="🤖 سوال از هوش مصنوعی")],
             [types.KeyboardButton(text="ℹ️ راهنما")]
         ],
