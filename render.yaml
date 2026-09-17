@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: acharfrancebot
-    runtime: image
-    repo: https://github.com/shahgholian2008-create/AcharBot
-    plan: free
-    dockerfilePath: ./Dockerfile
